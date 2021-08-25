@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using MiniUniversity.DAL;
 using MiniUniversity.Models;
+using PagedList;
 
 namespace MiniUniversity.Controllers
 {
@@ -17,11 +18,29 @@ namespace MiniUniversity.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Student
-        public ActionResult Index(string sortOrder, string searchString)
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
+        // 페이지가 최초로 출력되거나 사용자가 페이징 링크나 정렬 링크를 출력하지 않은 경우에는 모든 매개변수들의 값이 null
+        // 페이징 링크가 클릭되면 page 변수에 출력될 페이지의 번호가 담겨진다.
         {
+            // 페이징 처리를 위해 PagedList.MVC NuGet 패키지 설치
+            // 페이징 중에도 동일한 정렬 순서를 유지하기 위해서는 페이징 링크에 정렬 순서 정보가 함께 포함
+            ViewBag.CurrentSort = sortOrder;
             // sortOrder의 값이 null이거나 빈 문자열이면 ViewBag.NameSortParm 변수를 "name_desc"로 설정하고, 아니면 빈 문자열로 설정
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString; // 현재 지정된 필터 문자열 값을 뷰에 제공
+
+
             var students = from s in db.Students
                            select s;
             // 검색할 값이 존재하는 경우에만 실행
@@ -45,7 +64,9 @@ namespace MiniUniversity.Controllers
                     students = students.OrderBy(s => s.StudentName);
                     break;
             }
-            return View(students.ToList());
+            int pageSize = 3;
+            int pageNumber = (page ?? 1); // page 변수의 값이 null이 아니면 그 값을 반환하고, 그 값이 null이면 1을 반환한다는 뜻
+            return View(students.ToPagedList(pageNumber, pageSize));
 
         }
 
