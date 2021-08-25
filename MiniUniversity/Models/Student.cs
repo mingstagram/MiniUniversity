@@ -12,8 +12,7 @@ namespace MiniUniversity.Models
         public string StudentName { get; set; }
 
         public DateTime EnrollmentDate { get; set; }
-
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+         
         public virtual ICollection<Enrollment> Enrollments { get; set; }
     }
 }

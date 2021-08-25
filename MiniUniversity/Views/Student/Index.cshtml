@@ -12,10 +12,10 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.StudentName)
+            @Html.ActionLink("StudentName", "Index", new { sortOrder = ViewBag.NameSortParm })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.EnrollmentDate)
+            @Html.ActionLink("Enrollment Date", "Index", new { sortOrder = ViewBag.DateSortParm })
         </th>
         <th></th>
     </tr>

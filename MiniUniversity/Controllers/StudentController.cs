@@ -21,8 +21,7 @@ namespace MiniUniversity.Controllers
         {
             // sortOrder의 값이 null이거나 빈 문자열이면 ViewBag.NameSortParm 변수를 "name_desc"로 설정하고, 아니면 빈 문자열로 설정
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewBag.DataSortParm = sortOrder == "Date" ? "date_desc" : "Date";
-
+            ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
             var students = from s in db.Students
                            select s;
             switch (sortOrder)
@@ -40,7 +39,8 @@ namespace MiniUniversity.Controllers
                     students = students.OrderBy(s => s.StudentName);
                     break;
             }
-            return View(db.Students.ToList());
+            return View(students.ToList());
+
         }
 
         // GET: Student/Details/5
