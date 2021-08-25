@@ -24,7 +24,7 @@ namespace MiniUniversity.Controllers
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
             var students = from s in db.Students
                            select s;
-
+            // 검색할 값이 존재하는 경우에만 실행
             if (!String.IsNullOrEmpty(searchString))
             {
                 students = students.Where(s => s.StudentName.Contains(searchString));
