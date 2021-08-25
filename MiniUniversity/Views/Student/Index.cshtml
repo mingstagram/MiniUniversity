@@ -1,30 +1,35 @@
-﻿@model IEnumerable<MiniUniversity.Models.Student>
+﻿@model PagedList.IPagedList<MiniUniversity.Models.Student>
+@using PagedList.Mvc;
+
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Students";
 }
 
-<h2>Index</h2>
+<h2>학생 목록</h2>
 
 <p>
     @Html.ActionLink("학생 추가", "Create")
 </p>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Index", "Student", FormMethod.Get))
 {
     <p>
-        학생 이름 검색: @Html.TextBox("SearchString")
+        @*검색 텍스트 박스는 현재 지정된 검색 문자열로 초기화되므로, 새로운 페이지를 클릭하더라도 검색 문자열이 계속 유지*@
+        학생 이름 검색: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
         <input type="submit" value="찾기" />
     </p>
 }
 
 <table class="table">
     <tr>
+        @*필터된 결과가 반영된 상태로 정렬이 가능하도록 쿼리 문자열을 이용해서 현재 검색 문자열을 컨트롤러에 전달*@
         <th>
-            @Html.ActionLink("StudentName", "Index", new { sortOrder = ViewBag.NameSortParm })
+            @Html.ActionLink("StudentName", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.ActionLink("Enrollment Date", "Index", new { sortOrder = ViewBag.DateSortParm })
+            @Html.ActionLink("Enrollment Date", "Index", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
         </th>
         <th></th>
     </tr>
@@ -45,5 +50,10 @@
             </td>
         </tr>
     }
-
 </table>
+<br />
+@*현재 페이지와 전체 페이지들의 수를 출력 "Page 0 of 0" *@
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
