@@ -9,6 +9,7 @@ using System.Web.Mvc;
 using MiniUniversity.DAL;
 using MiniUniversity.Models;
 using PagedList;
+using System.Data.Entity.Infrastructure;
 
 namespace MiniUniversity.Controllers
 {
@@ -107,7 +108,7 @@ namespace MiniUniversity.Controllers
                     return RedirectToAction("Index");
                 }
             }
-            catch (DataException /* dex */)
+            catch (RetryLimitExceededException  /* dex */)
             {
                 // 변경 사항들이 저장되는 도중에 DataException에서 파생된 예외가 던져지면 포광적인 오류메시지가 출력되는데
                 // DataException 예외는 프로그래밍 오류보다는 무언가 응용 프로그램 외부의 요인으로 인해서 발생하는 경우가 많으므로,
@@ -152,7 +153,7 @@ namespace MiniUniversity.Controllers
 
                     return RedirectToAction("Index");
                 }
-                catch (DataException /* dex */)
+                catch (RetryLimitExceededException  /* dex */)
                 {
                     //Log the error (uncomment dex variable name and add a line here to write a log.
                     ModelState.AddModelError("", "변경 사항을 저장할 수 없습니다. 다시 시도하고 문제가 지속되면 시스템 관리자에게 문의하십시오.");
@@ -198,7 +199,7 @@ namespace MiniUniversity.Controllers
                 // 그리고 SaveChanges 메서드가 호출되면 SQL DELETE 명령이 생성
                 db.SaveChanges();
             }
-            catch (DataException/* dex */)
+            catch (RetryLimitExceededException /* dex */)
             { 
                 return RedirectToAction("Delete", new { id = id, saveChangesError = true });
             }
