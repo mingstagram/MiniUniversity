@@ -17,8 +17,29 @@ namespace MiniUniversity.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Student
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder)
         {
+            // sortOrder의 값이 null이거나 빈 문자열이면 ViewBag.NameSortParm 변수를 "name_desc"로 설정하고, 아니면 빈 문자열로 설정
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.DataSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+
+            var students = from s in db.Students
+                           select s;
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    students = students.OrderByDescending(s => s.StudentName);
+                    break;
+                case "Date":
+                    students = students.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "date_desc":
+                    students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    students = students.OrderBy(s => s.StudentName);
+                    break;
+            }
             return View(db.Students.ToList());
         }
 
@@ -157,6 +178,10 @@ namespace MiniUniversity.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// 데이터베이스 연결 닫기
+        /// </summary>
+        /// 사용 중인 리소스들을 최대한 빨리 해제하려면, 데이터베이스 컨텍스트를 이용한 작업이 끝나는 즉시 인스턴스를 삭제
         protected override void Dispose(bool disposing)
         {
             if (disposing)
