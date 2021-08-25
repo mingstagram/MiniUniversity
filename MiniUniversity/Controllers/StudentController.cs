@@ -114,12 +114,20 @@ namespace MiniUniversity.Controllers
         }
 
         // GET: Student/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(int? id, bool? saveChangesError = false)
         {
+            // 삭제 작업의 실패 없이 HttpGet Delete 메서드가 호출된 경우에는 false로 설정되고, 데이터베이스 갱신
+            // 실패로 인해서 HttpPost Delete 메서드에서 호출된 경우에만 true로 설정되어 뷰에 오류 메시지가 전달
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
+
+            if (saveChangesError.GetValueOrDefault())
+            {
+                ViewBag.ErrorMessage = "삭제하지 못했습니다. 다시 시도하고 문제가 지속되면 시스템 관리자에게 문의하십시오.";
+            }
+
             Student student = db.Students.Find(id);
             if (student == null)
             {
@@ -129,13 +137,23 @@ namespace MiniUniversity.Controllers
         }
 
         // POST: Student/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
+        public ActionResult Delete(int id)
         {
-            Student student = db.Students.Find(id);
-            db.Students.Remove(student);
-            db.SaveChanges();
+            try
+            {
+                // 선택된 엔터티를 조회
+                Student student = db.Students.Find(id);
+                //  Remove 메서드를 호출해서 엔터티의 상태를 Deleted로 설정
+                db.Students.Remove(student);
+                // 그리고 SaveChanges 메서드가 호출되면 SQL DELETE 명령이 생성
+                db.SaveChanges();
+            }
+            catch (DataException/* dex */)
+            { 
+                return RedirectToAction("Delete", new { id = id, saveChangesError = true });
+            }
             return RedirectToAction("Index");
         }
 
