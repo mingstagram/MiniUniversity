@@ -17,13 +17,19 @@ namespace MiniUniversity.Controllers
         private SchoolContext db = new SchoolContext();
 
         // GET: Student
-        public ActionResult Index(string sortOrder)
+        public ActionResult Index(string sortOrder, string searchString)
         {
             // sortOrder의 값이 null이거나 빈 문자열이면 ViewBag.NameSortParm 변수를 "name_desc"로 설정하고, 아니면 빈 문자열로 설정
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
             var students = from s in db.Students
                            select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                students = students.Where(s => s.StudentName.Contains(searchString));
+            }
+
             switch (sortOrder)
             {
                 case "name_desc":
